@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Hackathon source data (too large for git)
+# candidates.jsonl
+# sample_candidates.json
+
+# Pre-computed artifacts (large binary files)
+# Uncomment these if you don't want to push artifacts:
+# data/*.pkl
+# data/*.npy

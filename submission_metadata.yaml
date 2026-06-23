@@ -1,0 +1,59 @@
+# Redrob Hackathon — Submission Metadata
+# Team InternDedo
+
+team_name: "InternDedo"
+
+primary_contact:
+  name: "Yashraj Kumar"
+  email: "bt23ece018@iiitn.ac.in"
+  phone: "+91-9420255192"
+
+team_members:
+  - name: "Yashraj Kumar"
+    email: "bt23ece018@iiitn.ac.in"
+    role: "AI Engineer"
+
+github_repo: "https://github.com/Yashraj0906/Intelligent-Candidate-Ranking-System"
+
+sandbox_link: "https://huggingface.co/spaces/UPDATE_USERNAME/interndedo-ranker"
+
+reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./submission.csv"
+
+compute:
+  platform: "Windows 11 PC"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "3.11"
+  os: "Windows 11"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: true
+  pre_computation_time_minutes: 20
+
+ai_tools_used:
+  - "Claude"
+  - "Antigravity IDE"
+
+ai_usage_summary: |
+  Used Claude (via Antigravity IDE) for architecture discussion, code generation,
+  and iterative refinement of the ranking pipeline. All design decisions, scoring
+  weights, and heuristics were collaboratively developed with AI assistance.
+  No candidate data was fed to any hosted LLM during ranking.
+
+methodology_summary: |
+  Hybrid retrieval + multi-signal reranking pipeline. Pre-computes BGE-small-en-v1.5
+  dense embeddings and structured features offline. Ranking phase: (1) Hard filters
+  remove honeypots and obvious non-fits, (2) Reciprocal Rank Fusion merges dense
+  semantic and sparse feature-based retrieval to shortlist 2000 candidates,
+  (3) Multi-signal reranker scores on 5 weighted components (career fit 35%,
+  skills fit 25%, behavioral signals 20%, logistics 10%, background 10%),
+  (4) Per-candidate reasoning generated from actual profile facts. Anti-keyword-stuffer
+  detection penalizes non-technical titles with inflated AI skill lists. 7-heuristic
+  honeypot detector catches impossible profiles. Runtime ~2 min for 100K candidates on CPU.
+
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true
