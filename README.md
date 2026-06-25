@@ -12,11 +12,12 @@ An AI-powered candidate ranking system that finds the **top 100 best-fit candida
 |:---|:---|
 | **Total Candidates Processed** | 100,000 |
 | **Honeypots Detected & Filtered** | 528 |
-| **Ranking Runtime** | **2.2 seconds** _(limit: 5 min)_ |
+| **Ranking Runtime** | **87 seconds** _(limit: 5 min)_ |
 | **Honeypots in Top 100** | **0** _(disqualified if >10)_ |
 | **Keyword Stuffers in Top 100** | **0** |
-| **AI/ML Titles in Top 100** | **93/100** |
+| **AI/ML Titles in Top 100** | **90/100** |
 | **Validation** | ✅ **PASSED** |
+| **Cross-Encoder Reranking** | ms-marco-MiniLM-L-6-v2 (22M params) |
 
 ---
 
@@ -60,6 +61,10 @@ flowchart TB
             BACKG["Background (10%)\nEducation, experience\nsweet spot, certs"]
         end
         
+        subgraph S4["Stage 4: Cross-Encoder Reranker"]
+            CE["ms-marco-MiniLM-L-6-v2\n22M params, passage reranking\n70% multi-signal + 30% cross-encoder"]
+        end
+        
         REASON["Reasoning Generator\nFact-based, per-candidate"]
     end
 
@@ -70,7 +75,8 @@ flowchart TB
     CAND --> PRECOMPUTE
     PRECOMPUTE --> RANK
     RRF -->|"Top 2,000"| S3
-    S3 -->|"Top 100"| REASON
+    S3 -->|"Top 200"| S4
+    S4 -->|"Top 100"| REASON
     REASON --> CSV
 
     style INPUT fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -86,7 +92,7 @@ flowchart TB
 ### The Problem
 Recruiters go through hundreds of profiles and miss the right person — not because talent isn't there, but because keyword filters can't see what actually matters. This system ranks candidates **the way a great recruiter would**.
 
-### The Solution: 4-Stage Pipeline
+### The Solution: 5-Stage Pipeline
 
 #### Stage 1: Hard Filters
 Eliminates obvious non-fits before any expensive computation:
@@ -125,7 +131,7 @@ flowchart LR
 
 **Why hybrid?** Dense retrieval catches semantic meaning (a "search infrastructure engineer" matches "vector DB experience"), while sparse catches exact keyword matches. RRF merges both without tuning weights.
 
-#### Stage 3: Multi-Signal Reranker
+#### Stage 3: Multi-Signal Reranker (2000 -> 200)
 
 Five weighted scoring components, each capturing a different dimension of candidate fit:
 
@@ -146,7 +152,30 @@ pie title Scoring Weight Distribution
 | **Logistics** | 10% | Location match (Pune/Noida preferred), notice period (≤30d ideal), salary alignment, work mode, willingness to relocate |
 | **Background** | 10% | Education tier + field relevance, experience sweet spot (Gaussian around 7 yrs), relevant certifications, industry fit |
 
-#### Stage 4: Reasoning Generation
+#### Stage 4: Cross-Encoder Reranker (200 -> 100) ⭐ NEW
+After multi-signal scoring narrows to 200, a **cross-encoder** sees (JD, candidate) pairs together for deep semantic understanding:
+
+```python
+# Model: cross-encoder/ms-marco-MiniLM-L-6-v2 (22M params)
+# Trained on MS-MARCO for passage reranking — perfect for JD-candidate matching
+# 
+# Key insight: bi-encoders (BGE) encode JD and candidate SEPARATELY,
+# so they can't model fine-grained interactions. Cross-encoders see
+# both texts TOGETHER through full self-attention — much more accurate.
+
+final_score = 0.70 * multi_signal_composite + 0.30 * cross_encoder_normalized
+```
+
+| Cross-Encoder Detail | Value |
+|:---|:---|
+| Model | `ms-marco-MiniLM-L-6-v2` (22M params) |
+| Input | (JD text, candidate text) pair |
+| Reranking pool | Top 200 from multi-signal stage |
+| Blend ratio | 70% multi-signal + 30% cross-encoder |
+| Latency | ~84 seconds for 200 candidates on CPU |
+| Impact | Reshuffles top candidates for better NDCG@10 |
+
+#### Stage 5: Reasoning Generation
 Every candidate gets a **specific, fact-based reasoning** — no templates, no hallucination:
 - References actual skills, titles, companies from the profile
 - Connects to specific JD requirements
@@ -260,11 +289,12 @@ python rank.py --candidates ./candidates.jsonl --out ./submission.csv
 
 | Component | Technology | Why |
 |:---|:---|:---|
-| **Embeddings** | BAAI/bge-small-en-v1.5 (33M params) | Top-tier on MTEB for its size, 384-dim, CPU-friendly, 3x faster than bge-base |
+| **Bi-Encoder** | BAAI/bge-small-en-v1.5 (33M params) | Top-tier on MTEB for its size, 384-dim, CPU-friendly, 3x faster than bge-base |
+| **Cross-Encoder** | ms-marco-MiniLM-L-6-v2 (22M params) | Trained on MS-MARCO for passage reranking, full self-attention over (JD, candidate) pairs |
 | **Hybrid Retrieval** | Reciprocal Rank Fusion (RRF) | Parameter-free rank merging — used in production by Elasticsearch and Vespa |
 | **Feature Engineering** | NumPy + Pandas | Vectorized ops for 100K candidates |
 | **NLP Signals** | Regex + keyword matching | Production/ranking signal detection in career narratives |
-| **Vector Similarity** | NumPy dot product | L2-normalized embeddings → dot product = cosine similarity |
+| **Vector Similarity** | NumPy dot product | L2-normalized embeddings = cosine similarity via dot product |
 | **Serialization** | Pickle + NumPy .npy | Fast load of pre-computed artifacts |
 | **Sandbox** | Gradio on HuggingFace Spaces | Free tier, Python-native, instant deployment |
 

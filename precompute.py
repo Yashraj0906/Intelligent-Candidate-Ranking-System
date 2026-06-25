@@ -229,7 +229,10 @@ def main():
     
     save_numpy(np.array(shortlist_embeddings, dtype=np.float32),
                os.path.join(args.data_dir, "shortlist_embeddings.npy"))
+    # Save candidate texts for cross-encoder reranking stage
+    save_pickle(shortlist_texts, os.path.join(args.data_dir, "shortlist_texts.pkl"))
     print(f"       Computed embeddings shape {shortlist_embeddings.shape} in {time.time()-t0:.1f}s")
+    print(f"       Saved candidate texts for cross-encoder reranking")
     
     # =========================================================================
     # Step 6: Compute JD embedding

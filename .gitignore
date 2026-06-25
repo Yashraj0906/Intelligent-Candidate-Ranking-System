@@ -23,11 +23,9 @@ env/
 .DS_Store
 Thumbs.db
 
-# Hackathon source data (too large for git)
-# candidates.jsonl
-# sample_candidates.json
+# Hackathon source data (too large for git, ~300MB+)
+[PUB]*/
+data/
 
 # Pre-computed artifacts (large binary files)
-# Uncomment these if you don't want to push artifacts:
-# data/*.pkl
-# data/*.npy
+# These can be regenerated with precompute.py
