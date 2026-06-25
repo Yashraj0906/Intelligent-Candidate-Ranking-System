@@ -57,18 +57,18 @@ def get_cross_encoder():
         _cross_encoder = CrossEncoder(CROSS_ENCODER_MODEL, max_length=512)
     return _cross_encoder
 
-
 def rank_candidates(candidates_json: str, top_k: int = 100, use_cross_encoder: bool = True) -> str:
-    """Main ranking function for the Gradio interface.
+    """Main ranking function for the Gradio interface."""
+    top_k = int(top_k)
     
-    Args:
-        candidates_json: JSON string with array of candidate objects
-        top_k: Number of top candidates to return (max 100)
-        use_cross_encoder: Whether to use cross-encoder reranking
-    
-    Returns:
-        Formatted results string with CSV and stats
-    """
+    try:
+        return _rank_candidates_impl(candidates_json, top_k, use_cross_encoder)
+    except Exception as e:
+        import traceback
+        return f"ERROR: {type(e).__name__}: {e}\n\n{traceback.format_exc()}"
+
+
+def _rank_candidates_impl(candidates_json: str, top_k: int, use_cross_encoder: bool) -> str:
     start_time = time.time()
     
     # Parse candidates

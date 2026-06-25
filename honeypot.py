@@ -98,7 +98,7 @@ def _check_expert_zero_duration(candidate: Dict) -> str:
         prof = s.get("proficiency", "").lower()
         dur = s.get("duration_months", 0)
         if prof in ("expert", "advanced") and dur == 0:
-            suspicious.append(f"{s['name']}({prof}, 0mo)")
+            suspicious.append(f"{s.get('skill_name', s.get('name', 'unknown'))}({prof}, 0mo)")
     
     if len(suspicious) >= 2:
         return f"H2: Expert/advanced skills with 0 duration: {', '.join(suspicious[:5])}"
