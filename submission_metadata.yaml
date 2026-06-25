@@ -15,7 +15,7 @@ team_members:
 
 github_repo: "https://github.com/Yashraj0906/Intelligent-Candidate-Ranking-System"
 
-sandbox_link: "https://huggingface.co/spaces/UPDATE_USERNAME/interndedo-ranker"
+sandbox_link: "https://huggingface.co/spaces/yashrajkumar623/Intelligent-Candidate-Ranking-System"
 
 reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./submission.csv"
 
