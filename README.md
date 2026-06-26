@@ -425,9 +425,9 @@ sequenceDiagram
 
 | Tool | Usage |
 |:---|:---|
-| Claude (via Antigravity IDE) | Boilerplate code generation, syntax debugging, rapid UI prototyping |
+| Claude (via Antigravity IDE) | Architecture discussion, code generation, iterative refinement |
 
-Designed the core 5-stage pipeline architecture, honeypot heuristics, and scoring weights independently. Used AI primarily as a coding assistant to speed up implementation. **No candidate data was fed to any hosted LLM during ranking.** The ranking step runs 100% offline on CPU with no network.
+All design decisions, scoring weights, honeypot heuristics, and anti-stuffer logic were collaboratively developed with AI assistance. **No candidate data was fed to any hosted LLM during ranking.** The ranking step runs 100% offline on CPU with no network.
 
 ---
 

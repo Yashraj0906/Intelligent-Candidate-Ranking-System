@@ -35,10 +35,10 @@ ai_tools_used:
   - "Antigravity IDE"
 
 ai_usage_summary: |
-  Designed the core 5-stage pipeline architecture, honeypot heuristics, and scoring weights independently.
-  Used Claude (via Antigravity IDE) primarily for boilerplate code generation, syntax debugging,
-  and rapid prototyping of the Gradio interface. All algorithmic design decisions and tuning
-  are my original work. No candidate data was fed to any hosted LLM during ranking.
+  Used Claude (via Antigravity IDE) for architecture discussion, code generation,
+  and iterative refinement of the ranking pipeline. All design decisions, scoring
+  weights, and heuristics were collaboratively developed with AI assistance.
+  No candidate data was fed to any hosted LLM during ranking.
 
 methodology_summary: |
   5-stage hybrid retrieval + multi-signal + cross-encoder reranking pipeline.
