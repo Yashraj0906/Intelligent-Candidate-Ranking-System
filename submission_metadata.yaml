@@ -41,15 +41,18 @@ ai_usage_summary: |
   No candidate data was fed to any hosted LLM during ranking.
 
 methodology_summary: |
-  Hybrid retrieval + multi-signal reranking pipeline. Pre-computes BGE-small-en-v1.5
-  dense embeddings and structured features offline. Ranking phase: (1) Hard filters
-  remove honeypots and obvious non-fits, (2) Reciprocal Rank Fusion merges dense
-  semantic and sparse feature-based retrieval to shortlist 2000 candidates,
-  (3) Multi-signal reranker scores on 5 weighted components (career fit 35%,
-  skills fit 25%, behavioral signals 20%, logistics 10%, background 10%),
-  (4) Per-candidate reasoning generated from actual profile facts. Anti-keyword-stuffer
-  detection penalizes non-technical titles with inflated AI skill lists. 7-heuristic
-  honeypot detector catches impossible profiles. Runtime ~2 min for 100K candidates on CPU.
+  5-stage hybrid retrieval + multi-signal + cross-encoder reranking pipeline.
+  Pre-computes BGE-small-en-v1.5 dense embeddings and structured features offline.
+  Ranking phase: (1) Hard filters remove honeypots and obvious non-fits,
+  (2) Reciprocal Rank Fusion merges dense semantic and sparse feature-based retrieval
+  to shortlist 2000 candidates, (3) Multi-signal reranker scores on 5 weighted
+  components (career fit 35%, skills fit 25%, behavioral 20%, logistics 10%,
+  background 10%) narrowing to top 200, (4) Cross-encoder reranker (ms-marco-MiniLM-L-6-v2)
+  performs deep (JD, candidate) attention scoring on top 200, blending 70% multi-signal
+  + 30% cross-encoder to select final top 100, (5) Per-candidate reasoning generated
+  from actual profile facts. Anti-keyword-stuffer detection penalizes non-technical
+  titles with inflated AI skill lists. 7-heuristic honeypot detector catches impossible
+  profiles (528 detected, 0 in top 100). Runtime ~87s for 100K candidates on CPU.
 
 declarations:
   read_submission_spec: true
