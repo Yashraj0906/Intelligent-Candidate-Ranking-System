@@ -21,6 +21,30 @@ An AI-powered candidate ranking system that finds the **top 100 best-fit candida
 
 ---
 
+## 🌐 Live Demo
+
+> **Try it now:** [🚀 HuggingFace Space](https://huggingface.co/spaces/yashrajkumar623/Intelligent-Candidate-Ranking-System)
+
+Paste candidate JSON → Get instant rankings with per-candidate reasoning.
+
+### Demo Results
+
+**Test 1: AI Engineer vs Operations Manager**
+| Candidate | Title | Score | Result |
+|:---|:---|:---:|:---|
+| CAND_0000001 | Backend Engineer (NLP, LLM skills) | **0.4728** | ✅ Ranked #1 — detected NLP/vector DB skills |
+| CAND_0000002 | Operations Manager (non-tech) | 0.2614 | Correctly ranked lower — limited AI relevance |
+
+**Test 2: Perfect Fit vs Honeypot**
+| Candidate | Title | Score | Result |
+|:---|:---|:---:|:---|
+| TEST_AI_001 | Senior AI Engineer @ Razorpay (embeddings, FAISS) | **0.8353** | ✅ Ranked #1 — near-perfect JD match |
+| TEST_HONEYPOT | "CEO CTO AI Expert" (50 yrs, 0-month expert skills) | ❌ Filtered | 🛡️ **Honeypot detected** — removed from results |
+
+> The system correctly identifies genuine AI engineers, ranks them by deep JD alignment, and filters impossible profiles.
+
+---
+
 ## 🏗️ System Architecture
 
 ```mermaid
@@ -234,9 +258,14 @@ python precompute.py --candidates ./candidates.jsonl
 
 This extracts features, detects honeypots, pre-filters to top 5000 candidates, and computes BGE-small embeddings.
 
-### Step 2: Rank (produces submission.csv in ~2 seconds)
+### Step 2: Rank (produces submission.csv in ~87 seconds with cross-encoder)
 ```bash
 python rank.py --candidates ./candidates.jsonl --out ./submission.csv
+```
+
+To skip cross-encoder for faster execution (~2 seconds):
+```bash
+python rank.py --candidates ./candidates.jsonl --out ./submission.csv --no-cross-encoder
 ```
 
 ### Step 3: Validate
@@ -280,6 +309,7 @@ python rank.py --candidates ./candidates.jsonl --out ./submission.csv
     ├── honeypot_flags.pkl       # Honeypot detection results
     ├── shortlist_ids.pkl        # Pre-filtered 5000 IDs
     ├── shortlist_embeddings.npy # BGE embeddings (5000 × 384)
+    ├── shortlist_texts.pkl      # Candidate texts for cross-encoder
     └── jd_embedding.npy         # JD embedding (1 × 384)
 ```
 
@@ -348,7 +378,7 @@ mindmap
 | **RAM** | 16 GB |
 | **GPU** | Not used (CPU only) |
 | **Network during ranking** | Off (no API calls) |
-| **Ranking runtime** | 2.2 seconds |
+| **Ranking runtime** | 87 seconds (with cross-encoder) / 2.2 seconds (without) |
 | **Pre-computation runtime** | ~20 minutes |
 
 ---
@@ -375,9 +405,10 @@ sequenceDiagram
     
     U->>R: python rank.py --candidates candidates.jsonl --out submission.csv
     activate R
-    R->>R: Load pre-computed artifacts (2.1s)
+    R->>R: Load pre-computed artifacts (3s)
     R->>R: Hybrid retrieval: Dense + Sparse + RRF → top 2,000
-    R->>R: Multi-signal reranking → top 100
+    R->>R: Multi-signal reranking → top 200
+    R->>R: Cross-encoder reranking (ms-marco-MiniLM) → top 100
     R->>R: Generate fact-based reasoning
     R-->>U: submission.csv (100 ranked candidates)
     deactivate R
