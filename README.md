@@ -49,12 +49,12 @@ Paste candidate JSON → Get instant rankings with per-candidate reasoning.
 
 ```mermaid
 flowchart TB
-    subgraph INPUT["📥 Input"]
+    subgraph INPUT["Input"]
         JD["Job Description\nSenior AI Engineer"]
         CAND["candidates.jsonl\n100,000 profiles"]
     end
 
-    subgraph PRECOMPUTE["⚙️ Pre-Computation Phase (Offline, ~20 min)"]
+    subgraph PRECOMPUTE["Pre-Computation Phase (Offline, ~20 min)"]
         direction TB
         FE["Feature Extraction\n100K candidates → structured features"]
         HP["Honeypot Detection\n7 heuristics → 528 flagged"]
@@ -66,7 +66,7 @@ flowchart TB
         JD --> JDE
     end
 
-    subgraph RANK["🚀 Ranking Phase (2.2 seconds, CPU only)"]
+    subgraph RANK["Ranking Phase (2.2 seconds, CPU only)"]
         direction TB
         
         subgraph S2["Stage 2: Hybrid Retrieval"]
@@ -92,7 +92,7 @@ flowchart TB
         REASON["Reasoning Generator\nFact-based, per-candidate"]
     end
 
-    subgraph OUTPUT["📤 Output"]
+    subgraph OUTPUT["Output"]
         CSV["submission.csv\nTop 100 ranked candidates\nwith reasoning"]
     end
 
@@ -176,7 +176,7 @@ pie title Scoring Weight Distribution
 | **Logistics** | 10% | Location match (Pune/Noida preferred), notice period (≤30d ideal), salary alignment, work mode, willingness to relocate |
 | **Background** | 10% | Education tier + field relevance, experience sweet spot (Gaussian around 7 yrs), relevant certifications, industry fit |
 
-#### Stage 4: Cross-Encoder Reranker (200 -> 100) ⭐ NEW
+#### Stage 4: Cross-Encoder Reranker (200 -> 100) NEW
 After multi-signal scoring narrows to 200, a **cross-encoder** sees (JD, candidate) pairs together for deep semantic understanding:
 
 ```python
@@ -415,7 +415,7 @@ sequenceDiagram
     
     U->>V: python validate_submission.py submission.csv
     activate V
-    V-->>U: ✅ Submission is valid.
+    V-->>U: Submission is valid.
     deactivate V
 ```
 
@@ -438,5 +438,5 @@ Built for the **Redrob Hackathon — India Runs Data & AI Challenge 2026**.
 ---
 
 <p align="center">
-  <b>Team InternDedo</b> · Built with 🧠 and ☕
+  <b>Team InternDedo</b> 
 </p>
